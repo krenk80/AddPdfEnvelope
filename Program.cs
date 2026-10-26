@@ -226,8 +226,10 @@ command.SetAction((parseResult) => {
                     }
                     // Signature Area
                     if (settings.CoverPage.ShowSignatureArea) {
-                        var sigAreaHeight = 80;
-                        var sigAreaTop = framesTopY - 20 - mainBoxHeight + 2*sigAreaHeight;
+                        var hasReviewer = !string.IsNullOrWhiteSpace(settings.CoverPage.RoleReviewer);
+                        var sigAreaHeight = hasReviewer ? 160f / 3 : 80;
+                        var sigAreaTop = framesTopY - 20 - mainBoxHeight + 160;
+                        var approverOffset = hasReviewer ? 2 * sigAreaHeight : sigAreaHeight;
                         canvas.GetPdfCanvas().SetStrokeColor(ColorConstants.BLACK)
                             .SetLineWidth(1.0f)
                             .Rectangle(pageSideMargin + textSideMargin, sigAreaTop, pageSize.GetWidth() - 2 * pageSideMargin - 2 * textSideMargin, -sigAreaHeight)
@@ -244,6 +246,16 @@ command.SetAction((parseResult) => {
                             .SetLineWidth(1.0f)
                             .Rectangle(pageSideMargin + textSideMargin, sigAreaTop - sigAreaHeight, pageSize.GetWidth() - 2 * pageSideMargin - 2 * textSideMargin, -sigAreaHeight)
                             .Stroke();
+                        if (hasReviewer) {
+                            canvas.Add(new Paragraph(ResolvePlaceholders($"Reviewer ({settings.CoverPage.RoleReviewer})", coverPdf, 1, settings.PageNumberOffset))
+                                .SetTextAlignment(TextAlignment.LEFT)
+                                .SetFontSize(12)
+                                .SetFixedPosition(1, pageSideMargin + textSideMargin + 10, sigAreaTop - sigAreaHeight - 20, pageSize.GetWidth() / 3));
+                            canvas.GetPdfCanvas().SetStrokeColor(ColorConstants.BLACK)
+                                .SetLineWidth(1.0f)
+                                .Rectangle(pageSideMargin + textSideMargin, sigAreaTop - approverOffset, pageSize.GetWidth() - 2 * pageSideMargin - 2 * textSideMargin, -sigAreaHeight)
+                                .Stroke();
+                        }
                         var approverText = "Approver";
                         if (!string.IsNullOrWhiteSpace(settings.CoverPage.RoleApprover)) {
                             approverText += $" ({settings.CoverPage.RoleApprover})";
@@ -251,7 +263,7 @@ command.SetAction((parseResult) => {
                         canvas.Add(new Paragraph(ResolvePlaceholders(approverText, coverPdf, 1, settings.PageNumberOffset))
                             .SetTextAlignment(TextAlignment.LEFT)
                             .SetFontSize(12)
-                            .SetFixedPosition(1, pageSideMargin + textSideMargin + 10, sigAreaTop - sigAreaHeight - 20, pageSize.GetWidth() / 3));
+                            .SetFixedPosition(1, pageSideMargin + textSideMargin + 10, sigAreaTop - approverOffset - 20, pageSize.GetWidth() / 3));
                         // Adobe Sign Tags
                         var signaturePlaceholder = settings.CoverPage.AdobeSignTagPattern ?? "";
                         if (settings.CoverPage.AddAdobeSignTags) {
@@ -266,6 +278,12 @@ command.SetAction((parseResult) => {
                                 .SetTextAlignment(TextAlignment.LEFT)
                                 .SetFontSize(12)
                                 .SetFixedPosition(1, pageSideMargin + textSideMargin + 10, sigAreaTop - sigAreaHeight - 40, pageSize.GetWidth() / 3));
+                            if (hasReviewer) {
+                                canvas.Add(new Paragraph(ResolvePlaceholders(signaturePlaceholder, coverPdf, 1, settings.PageNumberOffset))
+                                    .SetTextAlignment(TextAlignment.LEFT)
+                                    .SetFontSize(12)
+                                    .SetFixedPosition(1, pageSideMargin + textSideMargin + 10, sigAreaTop - approverOffset - 40, pageSize.GetWidth() / 3));
+                            }
                         }
                     }
                 }

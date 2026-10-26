@@ -31,6 +31,7 @@ public class CoverPage
     public bool AddAdobeSignTags { get; set; } = false;
     public string AdobeSignTagPattern { get; set; } = "";
     public string RoleAuthor { get; set; } = "AR";
+    public string RoleReviewer { get; set; } = string.Empty;
     public string RoleApprover { get; set; } = "AR";
 }
 

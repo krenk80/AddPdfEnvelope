@@ -64,6 +64,7 @@ The content of the added cover page, the header and the footer are configurable 
       "AddAdobeSignTags": true,
       "AdobeSignTagPattern": "{{Sig{sigNum}_es_:signer{sigNum}:signatureblock}}",
       "RoleAuthor": "AR",
+      "RoleReviewer": "",
       "RoleApprover": "AR"
     },
     "PageHeader": {
@@ -99,6 +100,8 @@ The content of the added cover page, the header and the footer are configurable 
 ```
 
 When `AddAdobeSignTags` is enabled, each application of `AdobeSignTagPattern` receives the next signature number. Multiple `{sigNum}` placeholders within one pattern application use the same number, while separate applications receive distinct numbers.
+
+`RoleReviewer` is optional: omit it or leave it empty or whitespace to keep the existing Author/Approver signature area. Set it to a nonblank role (for example, `"QA"`) to add one Reviewer between Author and Approver within the same area. Adobe Sign tags follow that order: Author is signer 1, Reviewer is signer 2, and Approver is signer 3; without a reviewer, Approver remains signer 2.
 
 The result looks like that:
 
